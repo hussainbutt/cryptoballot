@@ -10,8 +10,6 @@ const LoginPage = () => {
     if (cnic.trim() === "" || password.trim() === "") {
       Alert.alert("Error", "Please enter CNIC and password");
     } else {
-      Alert.alert("Success", `Welcome, CNIC: ${cnic}`);
-      // API call here
     }
   };
 
@@ -19,7 +17,7 @@ const LoginPage = () => {
     <View className="flex-1 bg-white items-center justify-center px-8">
       {/* App Title */}
       <Text className="text-4xl font-extrabold mb-4 text-blue-600">
-        Crypto Ballot
+        Crypto Ballott
       </Text>
       <Text className="text-lg text-gray-500 mb-10">
         Secure your vote with confidence

@@ -1,7 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import authRoutes from './routes/authRoute.js';
+import authRoutes from './routes/auth.route.js';
+import nadraRoutes from './routes/nadra.route.js';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api', nadraRoutes);
 
 // Server
 app.listen(PORT, () => {
