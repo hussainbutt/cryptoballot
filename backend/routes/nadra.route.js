@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllRecords, getRecordByCNIC } from '../controllers/nadra.controller.js';
+import { getAllRecords, getRecordByCNIC, createNadraRecord } from '../controllers/nadra.controller.js';
 
 const router = express.Router();
 
@@ -7,6 +7,7 @@ const router = express.Router();
 router.get('/nadra', getAllRecords);
 
 // Route to get a NADRA record by CNIC
-router.get('/nadra/:cnic', getRecordByCNIC);
+router.get('/:cnic', getRecordByCNIC);
+router.post("/create", createNadraRecord);
 
 export default router;

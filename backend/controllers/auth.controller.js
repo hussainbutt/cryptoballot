@@ -12,7 +12,6 @@ export const registerUser = async (req, res) => {
 
         // Step 1: Check NADRA CNIC validity
         const nadraRecord = await NadraDB.findOne({ cnic });
-        console.log("nadara: =============> " + nadraRecord);
 
         if (!nadraRecord) {
             return res.status(400).json({ message: "Invalid CNIC. Record not found in NADRA." });
@@ -48,6 +47,8 @@ export const registerUser = async (req, res) => {
 
 
 export const loginUser = async (req, res) => {
+    console.log("agya login me");
+
     const { cnic, password } = req.body;
     try {
         const user = await User.findOne({ cnic });

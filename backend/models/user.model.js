@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        match: [/^\d{14}$/, 'CNIC must be exactly 14 digits'],
+        match: [/^\d{13,14}$/, 'CNIC must be exactly 14 digits'],
     },
     phone: {
         type: String,

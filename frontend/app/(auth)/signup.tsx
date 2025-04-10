@@ -4,15 +4,21 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 
 const SignupPage = () => {
   const [cnic, setCnic] = useState("");
-  const [phone, setPhone] = useState("+92");
+  const [phone, setPhone] = useState("92");
   const [password, setPassword] = useState("");
 
   const handleSignup = () => {
+    const phoneString = String(phone);
     if (cnic.trim() === "" || phone.trim() === "" || password.trim() === "") {
       Alert.alert("Error", "Please fill in all fields");
     } else {
       Alert.alert("Success", `Signup attempted, CNIC: ${cnic}`);
-      // API call here
+      //navigate to the PhoneAuthScreen for OTP verification
+      console.log(cnic + phone + password);
+
+      router.push(
+        `/(auth)/phoneAuthScreen?phone=${phoneString}&cnic=${cnic}&password=${password}`
+      );
     }
   };
 

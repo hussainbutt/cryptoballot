@@ -40,6 +40,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="phoneAuthScreen"
+        options={{
+          title: "OTP Verification",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="paperplane.fill" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

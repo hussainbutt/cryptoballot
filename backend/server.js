@@ -22,7 +22,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api', nadraRoutes);
+app.use('/api/nadra', nadraRoutes);
 
 // Server
 app.listen(PORT, () => {

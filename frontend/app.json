@@ -9,13 +9,18 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hussain.cryptoballot",
+      "googleServicesFile":"/frontend/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.hussain.cryptoballot",
+      "googleServicesFile": "/frontend/google-services.json"
     },
     "web": {
       "bundler": "metro",

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "440658849537",
+    "project_id": "cryptoballot-fc053",
+    "storage_bucket": "cryptoballot-fc053.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:440658849537:android:cdcb2cfe4a648d14e4b500",
+        "android_client_info": {
+          "package_name": "com.hussain.cryptoballot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFuoi7zYQ0QV14z7eI6Jgb1_ZxIgaE6wY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

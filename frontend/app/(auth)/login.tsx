@@ -6,10 +6,40 @@ const LoginPage = () => {
   const [cnic, setCnic] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (cnic.trim() === "" || password.trim() === "") {
       Alert.alert("Error", "Please enter CNIC and password");
     } else {
+      try {
+        console.log("handle login called");
+
+        const response = await fetch(
+          "http://192.168.1.10:5000/api/auth/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              cnic,
+              password,
+            }),
+          }
+        );
+
+        const result = await response.json(); // Wait for the response to be parsed into JSON.
+
+        if (response.ok) {
+          // If the response is successful, show the success message
+          Alert.alert("Login successful", "Welcome back!");
+        } else {
+          // If response is not okay, show the error message
+          Alert.alert("Login failed", result.message);
+        }
+      } catch (error) {
+        // Catch any other errors (like network issues) and display an alert
+        Alert.alert("Error while logging in", error.message);
+      }
     }
   };
 
@@ -17,7 +47,7 @@ const LoginPage = () => {
     <View className="flex-1 bg-white items-center justify-center px-8">
       {/* App Title */}
       <Text className="text-4xl font-extrabold mb-4 text-blue-600">
-        Crypto Ballott
+        Crypto Ballot
       </Text>
       <Text className="text-lg text-gray-500 mb-10">
         Secure your vote with confidence
