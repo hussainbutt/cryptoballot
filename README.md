@@ -54,3 +54,16 @@ The project is actively being developed as a **Final Year Project (FYP)**. The c
    ```bash
    git clone https://github.com/your-username/decentralized-voting-app.git
    cd decentralized-voting-app
+   Install dependencies:
+
+npm install
+
+Install required Expo packages:
+
+npm install @react-native-picker/picker expo-image-picker
+
+Start the app:
+
+npx expo start
+
+Make sure the backend is running at http://<your-ip>:5000. You can update the IP in API calls inside the frontend code.
