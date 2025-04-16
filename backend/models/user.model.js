@@ -18,6 +18,18 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6,
     },
+    provincialHalqa: {
+        type: String,
+        required: true,
+    },
+    nationalHalqa: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
     role: {
         type: String,
         enum: ['voter', 'admin'],

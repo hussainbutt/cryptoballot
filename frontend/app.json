@@ -9,10 +9,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      
       "supportsTablet": true,
       "bundleIdentifier": "com.hussain.cryptoballot",
-      "googleServicesFile":"/frontend/GoogleService-Info.plist"
+      "googleServicesFile": "/frontend/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -41,6 +40,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "155fffce-d0c7-4c38-9ece-84901f50b8c9"
+      }
     }
   }
 }

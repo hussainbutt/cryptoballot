@@ -1,41 +1,61 @@
 import { Link, router } from "expo-router";
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import NationalHalqaPicker from "@/components/ui/NationalHalqaPicker";
+import ProvincialHalqaPicker from "@/components/ui/ProvincialHalqaPicker";
+
+type ProvinceCode = "PP" | "PS" | "PK" | "PB" | null;
 
 const SignupPage = () => {
   const [cnic, setCnic] = useState("");
   const [phone, setPhone] = useState("92");
   const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [province, setProvince] = useState<ProvinceCode>(null);
+  const [ppHalqa, setPPHalqa] = useState("");
+  const [naHalqa, setNAHalqa] = useState("");
 
   const handleSignup = () => {
-    const phoneString = String(phone);
-    if (cnic.trim() === "" || phone.trim() === "" || password.trim() === "") {
+    if (
+      cnic.trim() === "" ||
+      phone.trim() === "" ||
+      password.trim() === "" ||
+      !province ||
+      !ppHalqa ||
+      !naHalqa
+    ) {
       Alert.alert("Error", "Please fill in all fields");
-    } else {
-      Alert.alert("Success", `Signup attempted, CNIC: ${cnic}`);
-      //navigate to the PhoneAuthScreen for OTP verification
-      console.log(cnic + phone + password);
-
-      router.push(
-        `/(auth)/phoneAuthScreen?phone=${phoneString}&cnic=${cnic}&password=${password}`
-      );
+      return;
     }
+
+    const phoneString = String(phone);
+    router.push(
+      `/(auth)/phoneAuthScreen?phone=${phoneString}&cnic=${cnic}&password=${password}&ppHalqa=${ppHalqa}&naHalqa=${naHalqa}`
+    );
   };
 
   return (
-    <View className="flex-1 bg-white items-center justify-center px-8">
-      {/* App Title */}
-      <Text className="text-4xl font-extrabold mb-4 text-blue-600">
-        Crypto Ballot
-      </Text>
-      <Text className="text-lg text-gray-500 mb-10">
-        Join the secure voting revolution
-      </Text>
+    <ScrollView className="flex-1 bg-white px-8 pt-20">
+      <View className="items-center">
+        <Text className="text-4xl font-extrabold mb-2 text-blue-600">
+          Crypto Ballot
+        </Text>
+        <Text className="text-lg text-gray-500 mb-8">
+          Join the secure voting revolution
+        </Text>
+      </View>
 
-      {/* Form */}
       <View className="w-full">
         <TextInput
-          className="w-full h-14 bg-gray-100 rounded-2xl px-4 mb-4 text-base placeholder:opacity-60"
+          className="w-full h-14 bg-gray-100 rounded-2xl px-4 mb-4 text-base placeholder:text-gray-500"
           placeholder="Enter CNIC without dashes"
           value={cnic}
           onChangeText={setCnic}
@@ -43,22 +63,46 @@ const SignupPage = () => {
         />
 
         <TextInput
-          className="w-full h-14 bg-gray-100 rounded-2xl px-4 mb-4 text-base  placeholder:opacity-60"
+          className="w-full h-14 bg-gray-100 rounded-2xl px-4 mb-4 text-base placeholder:text-gray-500"
           placeholder="Enter Phone Number"
           value={phone}
           onChangeText={setPhone}
           keyboardType="phone-pad"
         />
 
-        <TextInput
-          className="w-full h-14 bg-gray-100 rounded-2xl px-4 mb-6 text-base  placeholder:opacity-60"
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
+        {/* Password Field */}
+        <View className="relative">
+          <TextInput
+            className="w-full h-14 bg-gray-100 rounded-2xl px-4 mb-4 text-base placeholder:text-gray-500"
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!passwordVisible}
+          />
+          <TouchableOpacity
+            className="absolute right-4 top-4"
+            onPress={() => setPasswordVisible(!passwordVisible)}
+          >
+            <Ionicons
+              name={passwordVisible ? "eye-off" : "eye"}
+              size={24}
+              color="gray"
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Provincial Halqa Picker */}
+        <ProvincialHalqaPicker
+          province={province}
+          setProvince={setProvince}
+          value={ppHalqa}
+          onChange={setPPHalqa}
         />
 
-        {/* Signup Button */}
+        {/* National Halqa Picker */}
+        <NationalHalqaPicker value={naHalqa} onChange={setNAHalqa} />
+
+        {/* Submit Button */}
         <TouchableOpacity
           className="w-full bg-blue-500 p-4 rounded-2xl items-center shadow-md active:bg-blue-600"
           onPress={handleSignup}
@@ -67,20 +111,19 @@ const SignupPage = () => {
           <Text className="text-white text-lg font-semibold">Sign Up</Text>
         </TouchableOpacity>
 
-        {/* Login Link */}
         <View className="flex-row justify-center mt-6">
-          <Text className="mt-4">
+          <Text>
             Already registered?{" "}
             <Text
               onPress={() => router.push("/(auth)/login")}
-              className="mt-4 text-blue-700 font-semibold"
+              className="text-blue-700 font-semibold"
             >
               Log in
             </Text>
           </Text>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

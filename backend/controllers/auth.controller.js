@@ -8,35 +8,37 @@ const generateToken = (userId) => {
 
 export const registerUser = async (req, res) => {
     try {
-        const { cnic, phone, password } = req.body;
+        const { cnic, phone, password, provincialHalqa, nationalHalqa } = req.body;
 
-        // Step 1: Check NADRA CNIC validity
         const nadraRecord = await NadraDB.findOne({ cnic });
 
         if (!nadraRecord) {
-            return res.status(400).json({ message: "Invalid CNIC. Record not found in NADRA." });
+            return res
+                .status(400)
+                .json({ message: "Invalid CNIC. Record not found in NADRA." });
         }
 
-        // Step 2: Match phone number
         if (nadraRecord.phone !== phone) {
-            return res.status(400).json({ message: "Phone number does not match NADRA record." });
+            return res
+                .status(400)
+                .json({ message: "Phone number does not match NADRA record." });
         }
 
-        // Step 3: Check if user already registered
         const existingUser = await User.findOne({ cnic });
         if (existingUser) {
             return res.status(400).json({ message: "User already registered." });
         }
 
-        // Step 4: Save new user (Password hashing handled by pre-save hook)
         const newUser = new User({
             cnic,
             phone,
             password,
+            name: nadraRecord.fullName,
+            provincialHalqa,
+            nationalHalqa,
         });
 
         await newUser.save();
-
         res.status(201).json({ message: "Signup successful!" });
     } catch (error) {
         console.error(error);
@@ -46,7 +48,9 @@ export const registerUser = async (req, res) => {
 
 
 
+
 export const loginUser = async (req, res) => {
+
     console.log("agya login me");
 
     const { cnic, password } = req.body;
@@ -61,5 +65,59 @@ export const loginUser = async (req, res) => {
         res.status(200).json({ token, user });
     } catch (err) {
         res.status(500).json({ message: err.message });
+    }
+};
+
+export const updateUser = async (req, res) => {
+    try {
+        console.log("reached update user");
+
+        const { cnic } = req.params;  // CNIC should be passed as a parameter
+        const { phone, newPassword } = req.body;
+
+        //Check if user exists
+        const user = await User.findOne({ cnic });
+        if (!user) {
+            return res.status(400).json({ message: "User not found." });
+        }
+
+        // Update user fields (phone number and/or password)
+        if (phone) {
+            // Update phone number if provided
+            user.phone = phone;
+        }
+
+        if (newPassword) {
+            // Update password if provided
+            user.password = newPassword;
+        }
+
+        // Save updated user info
+        await user.save();
+
+        // Step 3: Return response
+        res.status(200).json({ message: "User updated successfully." });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const deleteAccount = async (req, res) => {
+    try {
+        const { cnic } = req.params;
+
+        const user = await User.findOne({ cnic });
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        await User.deleteOne({ cnic });
+
+        res.status(200).json({ message: "Account deleted successfully." });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
     }
 };

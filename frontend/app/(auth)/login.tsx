@@ -1,10 +1,15 @@
 import { Link, router } from "expo-router";
 import React, { useState } from "react";
+import { Ionicons } from "@expo/vector-icons"; // To use the eye icon
+import { useLocalSearchParams } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 
 const LoginPage = () => {
   const [cnic, setCnic] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const handleLogin = async () => {
     if (cnic.trim() === "" || password.trim() === "") {
@@ -13,28 +18,32 @@ const LoginPage = () => {
       try {
         console.log("handle login called");
 
-        const response = await fetch(
-          "http://192.168.1.10:5000/api/auth/login",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              cnic,
-              password,
-            }),
-          }
-        );
+        const response = await fetch("http://192.168.1.9:5000/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cnic,
+            password,
+          }),
+        });
 
-        const result = await response.json(); // Wait for the response to be parsed into JSON.
+        const data = await response.json(); // Wait for the response to be parsed into JSON.
 
         if (response.ok) {
-          // If the response is successful, show the success message
-          Alert.alert("Login successful", "Welcome back!");
+          const success = await AsyncStorage.setItem("authToken", data.token);
+          console.log("Token Saved?", success);
+          const savedToken = await AsyncStorage.getItem("authToken");
+          console.log("Saved token:", savedToken);
+
+          await AsyncStorage.setItem("user", JSON.stringify(data.user));
+
+          Alert.alert("Success", "Logged in successfully!");
+          router.replace("/(tabs)/home");
         } else {
           // If response is not okay, show the error message
-          Alert.alert("Login failed", result.message);
+          Alert.alert("Login failed", data.message);
         }
       } catch (error) {
         // Catch any other errors (like network issues) and display an alert
@@ -64,13 +73,40 @@ const LoginPage = () => {
           keyboardType="number-pad"
         />
 
-        <TextInput
-          className="w-full h-14 bg-gray-100 rounded-2xl px-4 mb-6 text-base  placeholder:opacity-60"
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+        <View className="relative">
+          <TextInput
+            className="w-full h-14 bg-gray-100 rounded-2xl px-4 mb-6 text-base placeholder:opacity-60"
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!passwordVisible}
+          />
+          <TouchableOpacity
+            className="absolute right-4 top-4"
+            onPress={() => setPasswordVisible(!passwordVisible)} // Toggle password visibility
+          >
+            <Ionicons
+              name={passwordVisible ? "eye-off" : "eye"}
+              size={24}
+              color="gray"
+            />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            if (!cnic) {
+              Alert.alert("Error", "Please enter your CNIC first.");
+            } else {
+              router.push({
+                pathname: "/(auth)/resetPassword",
+                params: { cnic },
+              });
+            }
+          }}
+          className="mb-5"
+        >
+          <Text className="text-blue-600">Forgot password?</Text>
+        </TouchableOpacity>
 
         {/* Button */}
         <TouchableOpacity
