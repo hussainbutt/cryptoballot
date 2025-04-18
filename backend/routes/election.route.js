@@ -1,28 +1,21 @@
-// routes/election.routes.js
 import express from "express";
 import {
+    createElection,
     getAllElections,
     getElectionById,
-    createElection,
-    updateElection,
     deleteElection,
+    getElectionByFilter
 } from "../controllers/election.controller.js";
 
 const router = express.Router();
 
-// Get all elections
 router.get("/", getAllElections);
-
-// Get election by ID
+router.get("/filter", getElectionByFilter);
 router.get("/:id", getElectionById);
+// Route: /elections/filter?status=ended&halqa=NA-123
 
-// Create a new election
+
 router.post("/", createElection);
-
-// Update election by ID
-router.put("/:id", updateElection);
-
-// Delete election by ID
 router.delete("/:id", deleteElection);
 
 export default router;
