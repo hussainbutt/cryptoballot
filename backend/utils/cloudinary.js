@@ -11,3 +11,15 @@ cloudinary.config({
 });
 
 export default cloudinary;
+// utils/cloudinary.js
+
+
+export const uploadToCloudinary = async (filePath) => {
+    return new Promise((resolve, reject) => {
+        cloudinary.uploader.upload(filePath, (error, result) => {
+            if (error) reject(error);
+            else resolve(result.secure_url); // Return the secure URL of the uploaded image
+        });
+    });
+};
+

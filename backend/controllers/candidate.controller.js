@@ -1,120 +1,146 @@
-// import Candidate from "../models/candidate.model.js";
-// import Party from "../models/party.model.js"; // Assuming you have a Party model
-// import { validateCNIC } from "../utils/validateCnic.js";
+// backend/controllers/candidate.controller.js
+import Candidate from "../models/candidate.model.js";
+import cloudinary from "cloudinary";
+import { validationResult } from "express-validator";
+import stream from "stream";
 
 
-// // Create a new candidate
-// export const createCandidate = async (req, res) => {
-//     try {
-//         const { name, cnic, party, naHalqa, ppHalqa } = req.body;
-//         const symbol = req.file; // This is the uploaded file from the form
+// Cloudinary configuration
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-//         // Log to check the received data
-//         console.log("Received Candidate Data:", req.body);
-//         console.log("Received Symbol File:", symbol);
+export const createCandidate = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
 
-//         // Validate CNIC
-//         if (!validateCNIC(cnic)) {
-//             return res.status(400).json({ message: "Invalid CNIC format." });
-//         }
+    try {
+        // Destructure the fields from the request body
+        const { fullName, cnic, electionId, partyId, halqa } = req.body;
+        let symbol = "";
 
-//         // Handle saving candidate
-//         const candidate = new Candidate({
-//             fullName: name,
-//             cnic,
-//             party: party === "independent" ? null : party, // Handle "independent" party separately
-//             halqa: { naHalqa, ppHalqa },
-//             symbol: symbol ? symbol.path : null, // Save file path if symbol is uploaded
-//         });
+        // Check if the candidate is independent and upload the symbol to Cloudinary
+        if (!partyId && req.file) {
+            const result = await cloudinary.uploader.upload_stream(
+                { folder: "candidate_symbols" },
+                (error, result) => {
+                    if (error) {
+                        console.error(error);
+                        return res.status(500).json({ message: "Error uploading symbol to Cloudinary." });
+                    }
+                    symbol = result.secure_url; // Get the Cloudinary URL of the uploaded image
+                }
+            );
 
-//         await candidate.save();
-//         return res.status(201).json({ message: "Candidate created successfully", candidate });
-//     } catch (err) {
-//         console.error("Error creating candidate:", err);
-//         return res.status(500).json({ message: "Server error", error: err.message });
-//     }
-// };
+            // Pass the file buffer from multer
+            const bufferStream = new stream.PassThrough();
+            bufferStream.end(req.file.buffer);
+            bufferStream.pipe(result);
+        }
 
-// // Get all candidates
-// export const getAllCandidates = async (req, res) => {
-//     try {
-//         const candidates = await Candidate.find().populate("party");
-//         return res.status(200).json(candidates);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: "Internal server error." });
-//     }
-// };
+        // Create the candidate record
+        const candidate = new Candidate({
+            fullName,
+            cnic,
+            election: electionId,
+            party: partyId || null, // Null if independent
+            symbol: symbol || null, // Symbol URL if independent
+            halqa,
+        });
 
-// // Get a specific candidate by ID
-// export const getCandidateById = async (req, res) => {
-//     try {
-//         const candidate = await Candidate.findById(req.params.id).populate("party");
-//         if (!candidate) {
-//             return res.status(404).json({ message: "Candidate not found." });
-//         }
-//         return res.status(200).json(candidate);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: "Internal server error." });
-//     }
-// };
+        // Save the candidate to the database
+        await candidate.save();
+        return res.status(201).json(candidate);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Error creating candidate." });
+    }
+};
 
-// // Update a candidate
-// export const updateCandidate = async (req, res) => {
-//     try {
-//         const { name, cnic, party, naHalqa, ppHalqa, symbol } = req.body;
+export const updateCandidate = async (req, res) => {
+    const { fullName, cnic, electionId, partyId, halqa } = req.body;
+    const { id } = req.params;
 
-//         // Validate CNIC
-//         if (!validateCNIC(cnic)) {
-//             return res.status(400).json({ message: "Invalid CNIC format." });
-//         }
+    try {
+        const candidate = await Candidate.findById(id);
 
-//         // Get candidate and update
-//         let candidate = await Candidate.findById(req.params.id);
-//         if (!candidate) {
-//             return res.status(404).json({ message: "Candidate not found." });
-//         }
+        if (!candidate) return res.status(404).json({ message: "Candidate not found." });
 
-//         // Get party data if linked to a party
-//         let partyData = null;
-//         if (party) {
-//             partyData = await Party.findById(party);
-//             if (!partyData) {
-//                 return res.status(400).json({ message: "Party not found." });
-//             }
-//         }
+        candidate.fullName = fullName || candidate.fullName;
+        candidate.cnic = cnic || candidate.cnic;
+        candidate.election = electionId || candidate.election;
+        candidate.party = partyId || candidate.party;
+        candidate.halqa = halqa || candidate.halqa;
 
-//         candidate.name = name || candidate.name;
-//         candidate.cnic = cnic || candidate.cnic;
-//         candidate.party = partyData ? partyData._id : null;
-//         candidate.naHalqa = naHalqa || candidate.naHalqa;
-//         candidate.ppHalqa = ppHalqa || candidate.ppHalqa;
-//         candidate.symbol = symbol || candidate.symbol;
+        if (req.file) {
+            // If an independent candidate, upload the new symbol to Cloudinary
+            const result = await cloudinary.uploader.upload_stream(
+                { folder: "candidate_symbols" },
+                (error, result) => {
+                    if (error) {
+                        console.error(error);
+                        return res.status(500).json({ message: "Error uploading symbol to Cloudinary." });
+                    }
+                    candidate.symbol = result.secure_url; // Update the symbol URL
+                }
+            );
 
-//         await candidate.save();
+            // Pass the file buffer from multer
+            const bufferStream = new stream.PassThrough();
+            bufferStream.end(req.file.buffer);
+            bufferStream.pipe(result);
+        }
 
-//         return res.status(200).json({
-//             message: "Candidate updated successfully.",
-//             candidate,
-//         });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: "Internal server error." });
-//     }
-// };
+        await candidate.save();
+        return res.json(candidate);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Error updating candidate." });
+    }
+};
 
-// // Delete a candidate
-// export const deleteCandidate = async (req, res) => {
-//     try {
-//         const candidate = await Candidate.findByIdAndDelete(req.params.id);
-//         if (!candidate) {
-//             return res.status(404).json({ message: "Candidate not found." });
-//         }
+const getHalqaPrefix = (type, province) => {
+    if (type === "general") return "NA-";
+    if (province === "Punjab") return "PP-";
+    if (province === "Sindh") return "PS-";
+    if (province === "KPK") return "PK-";
+    if (province === "Balochistan") return "PB-";
+    return "";
+};
 
-//         return res.status(200).json({ message: "Candidate deleted successfully." });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: "Internal server error." });
-//     }
-// };
+// Get all candidates
+export const getCandidates = async (req, res) => {
+    try {
+        const candidates = await Candidate.find().populate("party election");
+        res.status(200).json(candidates);
+    } catch (err) {
+        res.status(500).json({ message: "Error getting candidates" });
+    }
+};
+
+// Get single candidate
+export const getCandidateById = async (req, res) => {
+    try {
+        const candidate = await Candidate.findById(req.params.id).populate("party election");
+        if (!candidate) return res.status(404).json({ message: "Candidate not found" });
+        res.status(200).json(candidate);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching candidate" });
+    }
+};
+
+
+
+// Delete candidate
+export const deleteCandidate = async (req, res) => {
+    try {
+        await Candidate.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: "Candidate deleted" });
+    } catch (err) {
+        res.status(500).json({ message: "Error deleting candidate" });
+    }
+};

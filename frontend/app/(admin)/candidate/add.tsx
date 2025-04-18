@@ -1,195 +1,252 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
-  Image,
   ScrollView,
+  Image,
+  Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function AddCandidateScreen() {
-  const [name, setName] = useState("");
+  const router = useRouter();
+
+  const [fullName, setFullName] = useState("");
   const [cnic, setCnic] = useState("");
-  const [partyId, setPartyId] = useState("independent");
-  const [naHalqa, setNaHalqa] = useState("");
-  const [ppHalqa, setPpHalqa] = useState("");
-  const [symbol, setSymbol] = useState(null);
+  const [elections, setElections] = useState([]);
+  const [electionId, setElectionId] = useState("");
+  const [electionType, setElectionType] = useState("");
   const [parties, setParties] = useState([]);
+  const [partyId, setPartyId] = useState("");
+  const [province, setProvince] = useState("");
+  const [halqaNumber, setHalqaNumber] = useState("");
+  const [symbolUri, setSymbolUri] = useState(null);
 
-  const fetchParties = async () => {
-    try {
-      const res = await fetch("http://192.168.1.9:5000/api/parties");
-      const data = await res.json();
-      setParties(data);
-    } catch (err) {
-      Alert.alert("Error", err.message);
-    }
-  };
+  useEffect(() => {
+    fetch("http://192.168.1.3:5000/api/elections")
+      .then((res) => res.json())
+      .then((data) => setElections(data));
 
-  const pickImage = async () => {
+    fetch("http://192.168.1.3:5000/api/parties")
+      .then((res) => res.json())
+      .then((data) => setParties(data));
+  }, []);
+
+  const pickSymbol = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-      allowsEditing: true,
     });
 
     if (!result.canceled) {
-      setSymbol(result.assets[0]);
+      setSymbolUri(result.assets[0].uri);
     }
   };
 
+  const getHalqaPrefix = () => {
+    if (electionType === "general") return "NA-";
+    if (electionType === "provincial") {
+      switch (province) {
+        case "Punjab":
+          return "PP-";
+        case "Sindh":
+          return "PS-";
+        case "KPK":
+          return "PK-";
+        case "Balochistan":
+          return "PB-";
+        default:
+          return "";
+      }
+    }
+    return "";
+  };
+
   const handleSubmit = async () => {
-    if (
-      !name ||
-      !cnic ||
-      !naHalqa ||
-      !ppHalqa ||
-      (partyId === "independent" && !symbol)
-    ) {
-      return Alert.alert("Validation", "All fields are required");
-    }
-
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("cnic", cnic);
-    formData.append("party", partyId);
-    formData.append("naHalqa", naHalqa);
-    formData.append("ppHalqa", ppHalqa);
-
-    if (partyId === "independent") {
-      formData.append("symbol", {
-        uri: symbol.uri,
-        name: "candidate_symbol.jpg",
-        type: "image/jpeg",
-      });
-    }
-
     try {
-      const res = await fetch("http://192.168.1.9:5000/api/candidates", {
+      const halqa = getHalqaPrefix() + halqaNumber;
+
+      const formData = new FormData();
+      formData.append("fullName", fullName);
+      formData.append("cnic", cnic);
+      formData.append("electionId", electionId);
+      formData.append("partyId", partyId || "");
+      formData.append("halqa", halqa);
+
+      if (!partyId && symbolUri) {
+        const fileName = symbolUri.split("/").pop();
+        const fileType = symbolUri.match(/\.\w+$/)?.[0];
+
+        formData.append("symbol", {
+          uri: symbolUri,
+          name: fileName || "symbol.jpg",
+          type: `image/${fileType?.replace(".", "") || "jpeg"}`,
+        } as any);
+      }
+      console.log(formData);
+
+      const res = await fetch("http://192.168.1.3:5000/api/candidates", {
         method: "POST",
-        body: formData,
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        body: formData,
       });
 
-      const data = await res.json();
+      if (!res.ok) throw new Error("Something went wrong");
 
-      if (res.ok) {
-        Alert.alert("Success", "Candidate created");
-        router.push("/(admin)/candidates");
-      } else {
-        Alert.alert("Error", data.message || "Failed to create candidate");
-      }
+      Alert.alert("Success", "Candidate added!");
+      router.push("/(admin)/candidates");
     } catch (err) {
+      console.error(err);
       Alert.alert("Error", err.message);
     }
   };
 
-  useEffect(() => {
-    fetchParties();
-  }, []);
-
   return (
-    <ScrollView
-      contentContainerStyle={{
-        flexGrow: 1,
-        justifyContent: "center",
-        paddingHorizontal: 15,
-      }}
-      className="flex-1 bg-white px-4 "
-    >
-      <Text className="text-2xl font-bold text-center text-blue-600 mb-6">
-        Add Candidate
+    <ScrollView className="p-5 bg-white">
+      <Text className="text-2xl font-bold mb-4 text-center text-blue-700">
+        Add New Candidate
       </Text>
 
       <TextInput
-        value={name}
-        onChangeText={setName}
-        placeholder="Candidate Name"
-        className="bg-gray-100 rounded-2xl px-4 py-3 mb-4"
+        placeholder="Full Name"
+        className="border border-gray-300 p-3 rounded mb-4"
+        value={fullName}
+        onChangeText={setFullName}
       />
 
       <TextInput
+        placeholder="CNIC (without dashes)"
+        className="border border-gray-300 p-3 rounded mb-4"
+        keyboardType="numeric"
         value={cnic}
         onChangeText={setCnic}
-        placeholder="CNIC without dashes"
-        keyboardType="numeric"
-        className="bg-gray-100 rounded-2xl px-4 py-3 mb-4"
       />
 
-      <TextInput
-        value={naHalqa}
-        onChangeText={setNaHalqa}
-        placeholder="NA Halqa"
-        className="bg-gray-100 rounded-2xl px-4 py-3 mb-4"
-      />
-
-      <TextInput
-        value={ppHalqa}
-        onChangeText={setPpHalqa}
-        placeholder="PP Halqa"
-        className="bg-gray-100 rounded-2xl px-4 py-3 mb-4"
-      />
-
-      <Text className="mb-2 text-gray-700 font-semibold">Select Party</Text>
-
-      <TouchableOpacity
-        className={`p-3 rounded-xl mb-2 ${
-          partyId === "independent" ? "bg-blue-200" : "bg-gray-100"
-        }`}
-        onPress={() => setPartyId("independent")}
-      >
-        <Text className="text-gray-700 font-semibold">Independent</Text>
-      </TouchableOpacity>
-
-      {parties.map((party) => (
+      {/* Election Picker */}
+      <Text className="font-semibold text-gray-700 mb-2">Election</Text>
+      {elections.map((el) => (
         <TouchableOpacity
-          key={party._id}
-          className={`p-3 rounded-xl mb-2 ${
-            partyId === party._id ? "bg-blue-200" : "bg-gray-100"
+          key={el._id}
+          className={`p-3 rounded border mb-2 ${
+            electionId === el._id
+              ? "bg-blue-200 border-blue-500"
+              : "border-gray-300"
           }`}
-          onPress={() => setPartyId(party._id)}
+          onPress={() => {
+            setElectionId(el._id);
+            setElectionType(el.electionType);
+          }}
         >
-          <Text className="text-gray-700 font-semibold">{party.name}</Text>
+          <Text className="text-gray-800">
+            {el.title} ({el.electionType})
+          </Text>
         </TouchableOpacity>
       ))}
 
-      {partyId === "independent" && (
+      {/* Party Picker */}
+      <Text className="font-semibold text-gray-700 mt-4 mb-2">
+        Party (optional)
+      </Text>
+      {parties.map((p) => (
+        <TouchableOpacity
+          key={p._id}
+          className={`p-3 rounded border mb-2 ${
+            partyId === p._id
+              ? "bg-green-200 border-green-500"
+              : "border-gray-300"
+          }`}
+          onPress={() => setPartyId(p._id)}
+        >
+          <Text className="text-gray-800">{p.name}</Text>
+        </TouchableOpacity>
+      ))}
+
+      <TouchableOpacity
+        onPress={() => setPartyId("")}
+        className={`p-3 rounded border mb-4 ${
+          !partyId ? "bg-red-100 border-red-400" : "border-gray-300"
+        }`}
+      >
+        <Text className="text-red-700 font-semibold">
+          Independent Candidate
+        </Text>
+      </TouchableOpacity>
+
+      {electionType === "provincial" && (
+        <>
+          <Text className="font-semibold text-gray-700 mb-2">Province</Text>
+          {["Punjab", "Sindh", "KPK", "Balochistan"].map((prov) => (
+            <TouchableOpacity
+              key={prov}
+              className={`p-3 rounded border mb-2 ${
+                province === prov
+                  ? "bg-yellow-200 border-yellow-500"
+                  : "border-gray-300"
+              }`}
+              onPress={() => setProvince(prov)}
+            >
+              <Text className="text-gray-800">{prov}</Text>
+            </TouchableOpacity>
+          ))}
+        </>
+      )}
+
+      <View className="mb-4">
+        <Text className="font-semibold text-gray-700 mb-1">
+          Halqa (Prefix: {getHalqaPrefix() || "N/A"})
+        </Text>
+
+        <TextInput
+          placeholder="Enter Halqa Number (e.g. 122)"
+          keyboardType="numeric"
+          className="border border-gray-300 p-3 rounded"
+          value={halqaNumber}
+          onChangeText={setHalqaNumber}
+        />
+
+        {halqaNumber.length > 0 && (
+          <Text className="text-sm text-gray-500 mt-1">
+            Full Halqa:{" "}
+            <Text className="font-semibold text-blue-700">
+              {getHalqaPrefix()}
+              {halqaNumber}
+            </Text>
+          </Text>
+        )}
+      </View>
+
+      {!partyId && (
         <>
           <TouchableOpacity
-            onPress={pickImage}
-            className="bg-gray-200 py-3 px-4 rounded-xl mb-4"
+            onPress={pickSymbol}
+            className="bg-purple-600 p-3 rounded mb-2 flex flex-row items-center justify-center"
           >
-            <Text className="text-gray-800 text-center">
-              {symbol ? "Change Symbol" : "Pick Candidate Symbol"}
+            <Ionicons name="image" size={20} color="#fff" />
+            <Text className="text-white ml-2 font-semibold">
+              {symbolUri ? "Change Symbol" : "Upload Symbol"}
             </Text>
           </TouchableOpacity>
 
-          {symbol && (
+          {symbolUri && (
             <Image
-              source={{ uri: symbol.uri }}
-              style={{
-                width: 100,
-                height: 100,
-                marginBottom: 16,
-                alignSelf: "center",
-              }}
+              source={{ uri: symbolUri }}
+              className="w-24 h-24 rounded self-center mb-4 border"
             />
           )}
         </>
       )}
 
       <TouchableOpacity
+        className="bg-blue-600 py-4 rounded mt-4"
         onPress={handleSubmit}
-        className="bg-blue-600 py-4 rounded-2xl"
       >
-        <Text className="text-white font-semibold text-center text-lg">
-          Create Candidate
+        <Text className="text-white text-center text-lg font-bold">
+          Submit Candidate
         </Text>
       </TouchableOpacity>
     </ScrollView>

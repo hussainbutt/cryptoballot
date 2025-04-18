@@ -18,7 +18,7 @@ export default function EditCandidateScreen() {
 
   const fetchCandidate = async () => {
     try {
-      const res = await fetch(`http://192.168.1.9:5000/api/candidates/${id}`);
+      const res = await fetch(`http://192.168.1.3:5000/api/candidates/${id}`);
       const data = await res.json();
       setCandidate(data);
     } catch (err) {
@@ -45,7 +45,7 @@ export default function EditCandidateScreen() {
     }
 
     try {
-      const res = await fetch(`http://192.168.1.9:5000/api/candidates/${id}`, {
+      const res = await fetch(`http://192.168.1.3:5000/api/candidates/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(candidate),

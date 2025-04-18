@@ -1,32 +1,20 @@
-// import express from "express";
-// import multer from "multer";
-// import {
-//     getAllCandidates,
-//     getCandidateById,
-//     createCandidate,
-//     updateCandidate,
-//     deleteCandidate,
-// } from "../controllers/candidate.controller.js";
-// import upload from "../middleware/multer.js";
+// backend/routes/candidateRoutes.js
+import express from "express";
+import {
+    createCandidate,
+    getCandidates,
+    getCandidateById,
+    updateCandidate,
+    deleteCandidate,
+} from "../controllers/candidate.controller.js";
+import upload from "../middleware/multer.js";
 
-// const router = express.Router();
+const router = express.Router();
 
+router.get("/", getCandidates);
+router.get("/:id", getCandidateById);
+router.post("/", upload.single("symbol"), createCandidate);
+router.put("/:id", updateCandidate);
+router.delete("/:id", deleteCandidate);
 
-
-
-// // GET all candidates
-// router.get("/", getAllCandidates);
-
-// // GET single candidate by ID
-// router.get("/:id", getCandidateById);
-
-// // POST new candidate (with optional symbol image)
-// router.post("/", upload.single("symbol"), createCandidate);
-
-// // PUT update candidate by ID (with optional symbol image)
-// router.put("/:id", upload.single("symbol"), updateCandidate);
-
-// // DELETE candidate by ID
-// router.delete("/:id", deleteCandidate);
-
-// export default router;
+export default router;

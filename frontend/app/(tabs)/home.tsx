@@ -32,7 +32,7 @@ const Home = () => {
           onPress: async () => {
             try {
               const res = await fetch(
-                `http://192.168.1.9:5000/api/auth/delete/${cnic}`,
+                `http://192.168.1.3:5000/api/auth/delete/${cnic}`,
                 {
                   method: "DELETE",
                 }

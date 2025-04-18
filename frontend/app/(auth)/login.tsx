@@ -18,7 +18,7 @@ const LoginPage = () => {
       try {
         console.log("handle login called");
 
-        const response = await fetch("http://192.168.1.9:5000/api/auth/login", {
+        const response = await fetch("http://192.168.1.3:5000/api/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -40,7 +40,9 @@ const LoginPage = () => {
           await AsyncStorage.setItem("user", JSON.stringify(data.user));
 
           Alert.alert("Success", "Logged in successfully!");
-          router.replace("/(tabs)/home");
+
+          if (data.user.role === "admin") router.replace("/(admin)/dashboard");
+          else router.replace("/(tabs)/home");
         } else {
           // If response is not okay, show the error message
           Alert.alert("Login failed", data.message);
