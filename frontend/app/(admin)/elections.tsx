@@ -11,7 +11,7 @@ export default function ElectionListScreen() {
   const fetchElections = async () => {
     try {
       setRefreshing(true);
-      const res = await fetch("http://192.168.1.3:5000/api/elections");
+      const res = await fetch("http://192.168.180.184:5000/api/elections");
       const data = await res.json();
       setElections(data);
     } catch (err) {
@@ -22,9 +22,12 @@ export default function ElectionListScreen() {
   };
   const handleDeleteElection = async (id: string) => {
     try {
-      const res = await fetch(`http://192.168.1.3:5000/api/elections/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `http://192.168.180.184:5000/api/elections/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (res.ok) {
         Alert.alert("Deleted", "Election has been deleted");
         fetchElections(); // reload

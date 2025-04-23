@@ -29,7 +29,7 @@ export default function CreateElectionScreen() {
     };
 
     try {
-      const res = await fetch("http://192.168.1.3:5000/api/elections", {
+      const res = await fetch("http://192.168.180.184:5000/api/elections", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
