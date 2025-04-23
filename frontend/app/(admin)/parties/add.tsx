@@ -45,7 +45,7 @@ export default function AddPartyScreen() {
     });
 
     try {
-      const res = await fetch("http://192.168.1.3:5000/api/parties", {
+      const res = await fetch("http://192.168.180.184:5000/api/parties", {
         method: "POST",
         body: formData,
         headers: {

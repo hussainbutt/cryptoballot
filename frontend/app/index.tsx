@@ -33,7 +33,7 @@ export default function IndexPage() {
     if (role === "admin") {
       return <Redirect href="/(admin)/dashboard" />;
     } else {
-      return <Redirect href="/(tabs)/home" />;
+      return <Redirect href="/(voter)/home" />;
     }
   }
 

@@ -18,16 +18,19 @@ const LoginPage = () => {
       try {
         console.log("handle login called");
 
-        const response = await fetch("http://192.168.1.3:5000/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            cnic,
-            password,
-          }),
-        });
+        const response = await fetch(
+          "http://192.168.180.184:5000/api/auth/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              cnic,
+              password,
+            }),
+          }
+        );
 
         const data = await response.json(); // Wait for the response to be parsed into JSON.
 
@@ -42,7 +45,7 @@ const LoginPage = () => {
           Alert.alert("Success", "Logged in successfully!");
 
           if (data.user.role === "admin") router.replace("/(admin)/dashboard");
-          else router.replace("/(tabs)/home");
+          else router.replace("/(voter)/home");
         } else {
           // If response is not okay, show the error message
           Alert.alert("Login failed", data.message);

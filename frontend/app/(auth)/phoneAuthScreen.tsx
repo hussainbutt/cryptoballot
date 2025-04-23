@@ -34,7 +34,7 @@ export default function PhoneAuthScreen() {
       Alert.alert("Phone number verified");
       resetOTPProcess();
       await registerUserWithBackend();
-      router.back();
+      router.replace("/(auth)/login");
     } catch (error: any) {
       Alert.alert("Invalid OTP", error.message);
     }
@@ -48,19 +48,22 @@ export default function PhoneAuthScreen() {
 
   const registerUserWithBackend = async () => {
     try {
-      const response = await fetch("http://192.168.1.3:5000/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          cnic,
-          phone,
-          password,
-          provincialHalqa: ppHalqa,
-          nationalHalqa: naHalqa,
-        }),
-      });
+      const response = await fetch(
+        "http://192.168.180.184:5000/api/auth/signup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cnic,
+            phone,
+            password,
+            provincialHalqa: ppHalqa,
+            nationalHalqa: naHalqa,
+          }),
+        }
+      );
 
       const result = await response.json();
 
