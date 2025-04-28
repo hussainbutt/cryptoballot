@@ -1,29 +1,13 @@
+// models/voteModel.js
 import mongoose from "mongoose";
 
 const voteSchema = new mongoose.Schema({
-    voter: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Voter", // Reference to the Voter model
-        required: true,
-    },
-    candidate: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Candidate", // Reference to the Candidate model
-        required: true,
-    },
-    election: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Election", // Reference to the Election model
-        required: true,
-    },
-    halqa: {
-        type: String, // Electoral area or region (e.g., NA, PP)
-        required: true,
-    },
-    voteTimestamp: {
-        type: Date, // Date when the vote was cast
-        default: Date.now,
-    },
+    voterId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    candidateId: { type: mongoose.Schema.Types.ObjectId, ref: "Candidate", required: true },
+    electionId: { type: mongoose.Schema.Types.ObjectId, ref: "Election", required: true },
+    halqa: { type: String, required: true },
+    voteTimestamp: { type: Date, default: Date.now },
 });
 
-export default mongoose.model("Vote", voteSchema);
+const Vote = mongoose.model("Vote", voteSchema);
+export default Vote;

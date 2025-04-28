@@ -19,7 +19,7 @@ const LoginPage = () => {
         console.log("handle login called");
 
         const response = await fetch(
-          "http://192.168.180.184:5000/api/auth/login",
+          "http://192.168.1.13:5000/api/auth/login",
           {
             method: "POST",
             headers: {

@@ -6,7 +6,7 @@ const electionSchema = new mongoose.Schema({
     startTime: { type: Date, required: true },
     endTime: { type: Date, required: true },
     status: { type: String, enum: ["upcoming", "ongoing", "ended"], default: "upcoming" },
-    isActive: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
 });
 
 export default mongoose.model("Election", electionSchema);

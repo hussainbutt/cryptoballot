@@ -25,7 +25,7 @@ export default function IndexPage() {
   }, []);
 
   if (loading) {
-    return null; // Optional: loading spinner or splash
+    return null; //for loading animation in future
   }
 
   // Redirect based on role

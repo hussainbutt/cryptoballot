@@ -35,7 +35,7 @@ const VoterHome = () => {
       {/* Action Buttons */}
       <View className="space-y-6 flex-1 gap-10">
         <Pressable
-          onPress={() => router.push("/(voter)/elections")}
+          onPress={() => router.push("/(voter)/elections/onGoingElections")}
           className="bg-blue-600 py-10 rounded-2xl flex-row items-center justify-center shadow-md"
         >
           <Ionicons name="copy" size={22} color="white" />

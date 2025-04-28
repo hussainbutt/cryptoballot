@@ -27,7 +27,7 @@ const CandidateCard: React.FC<CandidateCardProps> = ({
           onPress: async () => {
             try {
               const res = await fetch(
-                `http://192.168.180.184:5000/api/candidates/${candidate._id}`,
+                `http://192.168.1.13:5000/api/candidates/${candidate._id}`,
                 {
                   method: "DELETE",
                 }
