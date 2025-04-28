@@ -24,10 +24,10 @@ const EndedElectionCard = ({ election }) => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => router.push(`/analytics/${election._id}`)}
-          className="bg-yellow-600 py-2 px-4 rounded-lg"
+          onPress={() => router.push(`/elections/result/${election._id}`)}
+          className="bg-green-600 py-2 px-4 rounded-lg"
         >
-          <Text className="text-white font-medium">See Analytics</Text>
+          <Text className="text-white font-medium">See Results</Text>
         </TouchableOpacity>
       </View>
     </View>

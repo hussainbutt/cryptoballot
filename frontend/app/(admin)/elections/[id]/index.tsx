@@ -9,9 +9,7 @@ export default function ElectionDetailScreen() {
 
   const fetchElection = async () => {
     try {
-      const res = await fetch(
-        `http://192.168.180.184:5000/api/elections/${id}`
-      );
+      const res = await fetch(`http://192.168.1.13:5000/api/elections/${id}`);
       const data = await res.json();
 
       if (res.ok) {

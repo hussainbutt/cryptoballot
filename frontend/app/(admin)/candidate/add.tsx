@@ -27,11 +27,12 @@ export default function AddCandidateScreen() {
   const [symbolUri, setSymbolUri] = useState(null);
 
   useEffect(() => {
-    fetch("http://192.168.180.184:5000/api/elections")
+    fetch("http://192.168.1.13:5000/api/elections/filter?status=upcoming")
       .then((res) => res.json())
-      .then((data) => setElections(data));
+      .then((data) => setElections(data))
+      .catch((err) => console.error("Error fetching upcoming elections:", err));
 
-    fetch("http://192.168.180.184:5000/api/parties")
+    fetch("http://192.168.1.13:5000/api/parties")
       .then((res) => res.json())
       .then((data) => setParties(data));
   }, []);
@@ -88,7 +89,7 @@ export default function AddCandidateScreen() {
       }
       console.log(formData);
 
-      const res = await fetch("http://192.168.180.184:5000/api/candidates", {
+      const res = await fetch("http://192.168.1.13:5000/api/candidates", {
         method: "POST",
         headers: {
           "Content-Type": "multipart/form-data",

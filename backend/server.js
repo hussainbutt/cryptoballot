@@ -4,9 +4,11 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.route.js';
 // import candidateRoutes from "./routes/candidate.route.js";
 import partyRoutes from './routes/party.route.js';
+import voteRoutes from "./routes/vote.route.js";
 import nadraRoutes from './routes/nadra.route.js';
 import electionRoutes from './routes/election.route.js';
 import candidateRoutes from './routes/candidate.route.js'
+import analyticsRoutes from './routes/analytics.route.js'
 import "./cron/updateElectionStatus.js";
 
 
@@ -33,11 +35,13 @@ mongoose.connect(process.env.MONGO_URI, {
 
 
 // Routes
+app.use("/api/votes", voteRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/nadra', nadraRoutes);
 app.use("/api/candidates", candidateRoutes);
 app.use('/api/parties', partyRoutes);
 app.use('/api/elections', electionRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 
 // Server

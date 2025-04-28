@@ -17,7 +17,7 @@ export default function CandidatesScreen() {
 
   const fetchCandidates = async () => {
     try {
-      const res = await fetch("http://192.168.180.184:5000/api/candidates");
+      const res = await fetch("http://192.168.1.13:5000/api/candidates");
       const data = await res.json();
       setCandidates(data);
     } catch (err) {
@@ -29,14 +29,11 @@ export default function CandidatesScreen() {
     const newStatus = currentStatus === "active" ? "inactive" : "active";
 
     try {
-      const res = await fetch(
-        `http://192.168.180.184:5000/api/candidates/${id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
+      const res = await fetch(`http://192.168.1.13:5000/api/candidates/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
       if (res.ok) {
         Alert.alert("Success", `Candidate ${newStatus}`);

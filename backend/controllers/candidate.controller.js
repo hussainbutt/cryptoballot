@@ -144,3 +144,33 @@ export const deleteCandidate = async (req, res) => {
         res.status(500).json({ message: "Error deleting candidate" });
     }
 };
+
+//Fetch candidates for vote screen
+export const fetchCandidatesAccordingToHalqa = async (req, res) => {
+    const { electionId, voterId } = req.query;
+
+    if (!electionId || !voterId) {
+        return res.status(400).json({ message: "Missing electionId or voterId" });
+    }
+
+    try {
+        // Find voter to get their halqa
+        const voter = await Voter.findById(voterId);
+        if (!voter) {
+            return res.status(404).json({ message: "Voter not found" });
+        }
+
+        const voterHalqa = voter.halqa;
+
+        // Fetch candidates that match the election and halqa
+        const candidates = await Candidate.find({
+            electionId,
+            halqa: voterHalqa,
+        }).populate("partyId", "partyName partySymbol"); // optional
+
+        res.status(200).json(candidates);
+    } catch (err) {
+        console.error("Error in fetchCandidatesAccordingToHalqa:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+};
