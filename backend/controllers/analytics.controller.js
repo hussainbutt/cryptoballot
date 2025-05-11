@@ -3,17 +3,18 @@ import Vote from "../models/vote.model.js";
 import Candidate from "../models/candidate.model.js";
 import Party from "../models/party.model.js";
 
-// Get overall election results - Updated to focus on halqas won
+// Get overall election results
 export const getElectionResults = async (req, res) => {
     try {
         const { electionId } = req.params;
 
-        // Get all votes for this election
+        // Get all votes for this election with complete party information
         const votes = await Vote.find({ electionId }).populate({
             path: 'candidateId',
             populate: {
                 path: 'party',
-                model: 'Party'
+                model: 'Party',
+                select: 'name symbol' // Include party symbol
             }
         });
 
@@ -30,6 +31,7 @@ export const getElectionResults = async (req, res) => {
             const candidate = vote.candidateId;
             const partyId = candidate.party ? candidate.party._id.toString() : 'independent';
             const partyName = candidate.party ? candidate.party.name : 'Independent';
+            const partySymbol = candidate.party ? candidate.party.symbol : null;
             const halqa = vote.halqa;
 
             // Halqa-wise counting
@@ -44,6 +46,7 @@ export const getElectionResults = async (req, res) => {
             if (!halqaResults[halqa].candidates[partyId]) {
                 halqaResults[halqa].candidates[partyId] = {
                     partyName,
+                    partySymbol,
                     votes: 0,
                     candidateName: candidate.fullName
                 };
@@ -64,6 +67,7 @@ export const getElectionResults = async (req, res) => {
                     winningParty = {
                         partyId,
                         partyName: candidates[partyId].partyName,
+                        partySymbol: candidates[partyId].partySymbol,
                         candidateName: candidates[partyId].candidateName
                     };
                 }
@@ -77,6 +81,7 @@ export const getElectionResults = async (req, res) => {
                 if (!partyResults[partyId]) {
                     partyResults[partyId] = {
                         partyName: winningParty.partyName,
+                        partySymbol: winningParty.partySymbol,
                         halqasWon: new Set(),
                         totalHalqas: 0
                     };
@@ -96,12 +101,13 @@ export const getElectionResults = async (req, res) => {
                 return {
                     partyId: partyId === 'independent' ? null : partyId,
                     partyName: partyData.partyName,
+                    partySymbol: partyData.partySymbol,
                     halqasWon: Array.from(partyData.halqasWon),
                     halqasWonCount,
                     halqaPercentage: ((halqasWonCount / totalHalqas) * 100).toFixed(2)
                 };
             })
-            .sort((a, b) => b.halqasWonCount - a.halqasWonCount); // Sort by halqas won descending
+            .sort((a, b) => b.halqasWonCount - a.halqasWonCount);
 
         // Determine overall winner based on halqas won
         const electionWinner = formattedPartyResults.length > 0
@@ -121,17 +127,18 @@ export const getElectionResults = async (req, res) => {
     }
 };
 
-// Get leading party information - Updated to use halqas won
+// Get leading party information
 export const getLeadingParty = async (req, res) => {
     try {
         const { electionId } = req.params;
 
-        // Get all votes for this election
+        // Get all votes with party symbol information
         const votes = await Vote.find({ electionId }).populate({
             path: 'candidateId',
             populate: {
                 path: 'party',
-                model: 'Party'
+                model: 'Party',
+                select: 'name symbol'
             }
         });
 
@@ -148,6 +155,7 @@ export const getLeadingParty = async (req, res) => {
             const candidate = vote.candidateId;
             const partyId = candidate.party ? candidate.party._id.toString() : 'independent';
             const partyName = candidate.party ? candidate.party.name : 'Independent';
+            const partySymbol = candidate.party ? candidate.party.symbol : null;
             const halqa = vote.halqa;
 
             if (!halqaResults[halqa]) {
@@ -159,6 +167,7 @@ export const getLeadingParty = async (req, res) => {
             if (!halqaResults[halqa].candidates[partyId]) {
                 halqaResults[halqa].candidates[partyId] = {
                     partyName,
+                    partySymbol,
                     votes: 0
                 };
             }
@@ -183,6 +192,7 @@ export const getLeadingParty = async (req, res) => {
                 if (!partyHalqas[winningPartyId]) {
                     partyHalqas[winningPartyId] = {
                         partyName: halqaResults[halqa].candidates[winningPartyId].partyName,
+                        partySymbol: halqaResults[halqa].candidates[winningPartyId].partySymbol,
                         halqasWon: 0
                     };
                 }
@@ -201,6 +211,7 @@ export const getLeadingParty = async (req, res) => {
                 leadingParty = {
                     partyId: partyId === 'independent' ? null : partyId,
                     partyName: partyHalqas[partyId].partyName,
+                    partySymbol: partyHalqas[partyId].partySymbol,
                     halqasWon: maxHalqas,
                     halqaPercentage: ((maxHalqas / totalHalqas) * 100).toFixed(2)
                 };
@@ -219,17 +230,18 @@ export const getLeadingParty = async (req, res) => {
     }
 };
 
-// Get halqa-wise results (unchanged from previous implementation)
+// Get halqa-wise results with party symbols
 export const getHalqaWiseResults = async (req, res) => {
     try {
         const { electionId } = req.params;
 
-        // Get all votes for this election
+        // Get all votes with party symbols
         const votes = await Vote.find({ electionId }).populate({
             path: 'candidateId',
             populate: {
                 path: 'party',
-                model: 'Party'
+                model: 'Party',
+                select: 'name symbol'
             }
         });
 
@@ -244,6 +256,7 @@ export const getHalqaWiseResults = async (req, res) => {
             const candidate = vote.candidateId;
             const partyId = candidate.party ? candidate.party._id.toString() : 'independent';
             const partyName = candidate.party ? candidate.party.name : 'Independent';
+            const partySymbol = candidate.party ? candidate.party.symbol : null;
             const halqa = vote.halqa;
 
             if (!halqaResults[halqa]) {
@@ -258,6 +271,7 @@ export const getHalqaWiseResults = async (req, res) => {
             if (!halqaResults[halqa].candidates[partyId]) {
                 halqaResults[halqa].candidates[partyId] = {
                     partyName,
+                    partySymbol,
                     votes: 0,
                     candidateName: candidate.fullName
                 };
@@ -273,6 +287,7 @@ export const getHalqaWiseResults = async (req, res) => {
                 return {
                     partyId: partyId === 'independent' ? null : partyId,
                     partyName: halqaData.candidates[partyId].partyName,
+                    partySymbol: halqaData.candidates[partyId].partySymbol,
                     candidateName: halqaData.candidates[partyId].candidateName,
                     votes: halqaData.candidates[partyId].votes,
                     votePercentage: ((halqaData.candidates[partyId].votes / halqaData.totalVotes) * 100).toFixed(2)

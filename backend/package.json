@@ -10,6 +10,8 @@
   "author": "hussain intzar",
   "license": "ISC",
   "dependencies": {
+    "@dfinity/agent": "^2.4.1",
+    "@dfinity/candid": "^2.4.1",
     "@faker-js/faker": "^9.6.0",
     "axios": "^1.9.0",
     "backend": "file:",
