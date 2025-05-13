@@ -41,21 +41,21 @@ const ElectionVoteScreen = () => {
 
       // Fetch election info
       const electionRes = await fetch(
-        `http://192.168.1.13:5000/api/elections/${electionId}`
+        `http://192.168.18.82:5000/api/elections/${electionId}`
       );
       const electionData = await electionRes.json();
       setElectionInfo(electionData || null);
 
       // Fetch candidates
       const candidatesRes = await fetch(
-        `http://192.168.1.13:5000/api/votes/candidates?voterId=${user._id}&electionId=${electionId}`
+        `http://192.168.18.82:5000/api/votes/candidates?voterId=${user._id}&electionId=${electionId}`
       );
       const candidatesData = await candidatesRes.json();
       setCandidates(candidatesData || []);
 
       // Check if already voted
       const voteRes = await fetch(
-        `http://192.168.1.13:5000/api/votes/check?voterId=${user._id}&electionId=${electionId}`
+        `http://192.168.18.82:5000/api/votes/check?voterId=${user._id}&electionId=${electionId}`
       );
       if (!voteRes) {
         console.log("dont know if voted before or not");
@@ -86,7 +86,7 @@ const ElectionVoteScreen = () => {
     }
 
     try {
-      const res = await fetch("http://192.168.1.13:5000/api/votes/submit", {
+      const res = await fetch("http://192.168.18.82:5000/api/votes/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

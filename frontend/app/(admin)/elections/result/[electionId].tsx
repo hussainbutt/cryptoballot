@@ -16,7 +16,7 @@ export default function HalqaDetailScreen() {
   const fetchHalqaResults = async () => {
     try {
       const response = await fetch(
-        `http://192.168.1.13:5000/analytics/halqa-results/${electionId}`
+        `http://192.168.18.82:5000/analytics/halqa-results/${electionId}`
       );
       const data = await response.json();
       const halqaData = data.find((item) => item.halqa === halqa);

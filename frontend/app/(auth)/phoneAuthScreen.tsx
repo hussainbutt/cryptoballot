@@ -48,19 +48,22 @@ export default function PhoneAuthScreen() {
 
   const registerUserWithBackend = async () => {
     try {
-      const response = await fetch("http://192.168.1.13:5000/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          cnic,
-          phone,
-          password,
-          provincialHalqa: ppHalqa,
-          nationalHalqa: naHalqa,
-        }),
-      });
+      const response = await fetch(
+        "http://192.168.18.82:5000/api/auth/signup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cnic,
+            phone,
+            password,
+            provincialHalqa: ppHalqa,
+            nationalHalqa: naHalqa,
+          }),
+        }
+      );
 
       const result = await response.json();
 

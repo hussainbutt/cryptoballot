@@ -18,7 +18,7 @@ export default function PartiesScreen() {
   const fetchParties = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://192.168.1.13:5000/api/parties");
+      const res = await fetch("http://192.168.18.82:5000/api/parties");
       const data = await res.json();
       setParties(data);
     } catch (err) {
@@ -35,7 +35,7 @@ export default function PartiesScreen() {
         style: "destructive",
         onPress: async () => {
           try {
-            await fetch(`http://192.168.1.13:5000/api/parties/${id}`, {
+            await fetch(`http://192.168.18.82:5000/api/parties/${id}`, {
               method: "DELETE",
             });
             fetchParties();

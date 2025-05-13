@@ -42,7 +42,7 @@ const EditProfile = () => {
     try {
       // Assuming you have an endpoint to update the user's profile (replace URL accordingly)
       const res = await fetch(
-        `http://192.168.1.13:5000/api/auth/update/${user.cnic}`,
+        `http://192.168.18.82:5000/api/auth/update/${user.cnic}`,
         {
           method: "PUT",
           headers: {

@@ -9,7 +9,7 @@ const OngoingElections = () => {
   const fetchOngoing = async () => {
     try {
       const res = await fetch(
-        "http://192.168.1.13:5000/api/elections/filter?status=ongoing"
+        "http://192.168.18.82:5000/api/elections/filter?status=ongoing"
       );
       const data = await res.json();
       setElections(data || []);

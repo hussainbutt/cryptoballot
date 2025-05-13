@@ -20,7 +20,7 @@ const VoterHistory = () => {
     const fetchEndedElections = async () => {
       try {
         const res = await fetch(
-          "http://192.168.1.13:5000/api/elections?status=ended"
+          "http://192.168.18.82:5000/api/elections?status=ended"
         );
         const data = await res.json();
 

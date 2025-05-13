@@ -21,7 +21,7 @@ export default function AnalyticsScreen() {
   const fetchResults = async () => {
     try {
       const response = await fetch(
-        `http://192.168.1.13:5000/api/analytics/results/${electionId}`
+        `http://192.168.18.82:5000/api/analytics/results/${electionId}`
       );
       const data = await response.json();
       setResults(data);
@@ -35,7 +35,7 @@ export default function AnalyticsScreen() {
   const fetchLeadingParty = async () => {
     try {
       const response = await fetch(
-        `http://192.168.1.13:5000/api/analytics/leading-party/${electionId}`
+        `http://192.168.18.82:5000/api/analytics/leading-party/${electionId}`
       );
       const data = await response.json();
       setLeadingParty(data);
