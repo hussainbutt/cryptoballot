@@ -1,74 +1,74 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 const EditProfile = () => {
   const [user, setUser] = useState<any>(null);
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [nationalHalqa, setNationalHalqa] = useState<string>("");
-  const [provincialHalqa, setProvincialHalqa] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    nationalHalqa: "",
+    provincialHalqa: "",
+  });
   const router = useRouter();
 
   useEffect(() => {
     const fetchUser = async () => {
       const userData = await AsyncStorage.getItem("user");
       if (userData) {
-        const userObj = JSON.parse(userData);
-        setUser(userObj);
-        setName(userObj.name || "");
-        setEmail(userObj.email || "");
-        setNationalHalqa(userObj.halqa?.national || "");
-        setProvincialHalqa(userObj.halqa?.provincial || "");
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        setFormData({
+          nationalHalqa: parsedUser.nationalHalqa || "",
+          provincialHalqa: parsedUser.provincialHalqa || "",
+        });
       }
     };
 
     fetchUser();
   }, []);
 
-  const handleSaveChanges = async () => {
-    if (isLoading) return; // Prevent multiple submissions
-
-    setIsLoading(true);
-    const updatedUser = {
-      name,
-      email,
-      halqa: { national: nationalHalqa, provincial: provincialHalqa },
-    };
-
+  const handleUpdate = async () => {
+    setLoading(true);
     try {
-      // Assuming you have an endpoint to update the user's profile (replace URL accordingly)
       const res = await fetch(
         `http://192.168.18.82:5000/api/auth/update/${user.cnic}`,
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(updatedUser),
+          body: JSON.stringify({
+            ...user,
+            ...formData
+          }),
         }
       );
 
       const data = await res.json();
 
       if (res.ok) {
-        // Save updated user data back to AsyncStorage
+        // Update local storage
+        const updatedUser = { ...user, ...formData };
         await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
-        Alert.alert(
-          "Profile Updated",
-          "Your profile has been updated successfully."
-        );
-        router.push("/profile"); // Redirect to profile page
+        Alert.alert("Success", "Profile updated successfully");
+        router.back();
       } else {
-        Alert.alert("Error", data.message || "Could not update profile.");
+        Alert.alert("Error", data.message || "Failed to update profile");
       }
-    } catch (err) {
-      Alert.alert("Error", err.message);
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -81,55 +81,69 @@ const EditProfile = () => {
   }
 
   return (
-    <View className="flex-1 bg-white px-6 pt-16">
-      <Text className="text-3xl font-bold text-blue-700 text-center mb-6">
+    <ScrollView className="flex-1 bg-white px-6 pt-16">
+      <Text className="text-3xl font-bold text-blue-700 text-center mb-8">
         Edit Profile
       </Text>
 
-      <View className="space-y-4">
+      <View className="space-y-6">
+        <View>
+          <Text className="text-lg font-semibold text-gray-800 mb-2">
+            National Halqa
+          </Text>
         <TextInput
-          className="bg-gray-200 p-4 rounded-xl"
-          placeholder="Name"
-          value={name}
-          onChangeText={setName}
-        />
+            className="bg-gray-100 p-4 rounded-xl text-gray-800"
+            value={formData.nationalHalqa}
+            onChangeText={(text) =>
+              setFormData({ ...formData, nationalHalqa: text })
+            }
+            placeholder="Enter your national halqa"
+          />
+        </View>
 
+        <View>
+          <Text className="text-lg font-semibold text-gray-800 mb-2">
+            Provincial Halqa
+          </Text>
         <TextInput
-          className="bg-gray-200 p-4 rounded-xl"
-          placeholder="Email (Optional)"
-          value={email}
-          onChangeText={setEmail}
-        />
+            className="bg-gray-100 p-4 rounded-xl text-gray-800"
+            value={formData.provincialHalqa}
+            onChangeText={(text) =>
+              setFormData({ ...formData, provincialHalqa: text })
+            }
+            placeholder="Enter your provincial halqa"
+          />
+        </View>
 
-        <TextInput
-          className="bg-gray-200 p-4 rounded-xl"
-          placeholder="National Halqa"
-          value={nationalHalqa}
-          onChangeText={setNationalHalqa}
-        />
-
-        <TextInput
-          className="bg-gray-200 p-4 rounded-xl"
-          placeholder="Provincial Halqa"
-          value={provincialHalqa}
-          onChangeText={setProvincialHalqa}
-        />
-
+        <View className="space-y-4 pt-4">
         <TouchableOpacity
-          className="bg-blue-600 py-3 rounded-xl items-center"
-          onPress={handleSaveChanges}
-          disabled={isLoading}
+            className="my-2 bg-blue-600 py-4 rounded-xl flex-row items-center justify-center space-x-2"
+            onPress={handleUpdate}
+            disabled={loading}
         >
-          {isLoading ? (
-            <Ionicons name="reload-outline" size={24} color="white" />
-          ) : (
+            {loading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <>
+                <Ionicons name="save-outline" className="pr-2" size={20} color="white" />
             <Text className="text-white font-semibold text-lg">
               Save Changes
             </Text>
+              </>
           )}
         </TouchableOpacity>
+
+          <TouchableOpacity
+            className="bg-gray-500 py-4 rounded-xl flex-row items-center justify-center space-x-2"
+            onPress={() => router.back()}
+            disabled={loading}
+          >
+            <Ionicons name="arrow-back-outline" size={20} color="white" />
+            <Text className="text-white font-semibold text-lg">Cancel</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

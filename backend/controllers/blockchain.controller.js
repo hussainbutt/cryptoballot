@@ -1,39 +1,74 @@
 import Vote from "../models/vote.model.js";
-import { HttpAgent } from "@dfinity/agent";
-import { Actor } from "@dfinity/agent";
-import { idlFactory as voteIDL } from "../../path-to/.dfx/local/canisters/vote_verification/vote_verification.js";
-import { canisterId as voteCanisterId } from "../../path-to/.dfx/local/canisters/vote_verification/vote_verification.js";
-import crypto from "crypto";
+import { voteActor } from '../blockchain/icpClient.js';
+import { hashVote } from "../utils/hashVote.js";
 
-// create agent
-const agent = new HttpAgent({ host: "http://127.0.0.1:4943" }); // local replica
-const voteCanister = Actor.createActor(voteIDL, {
-    agent,
-    canisterId: voteCanisterId,
-});
-
-const hashVote = (vote) => {
-    const data = `${vote.voterId}-${vote.candidateId}-${vote.electionId}-${vote.halqa}`;
-    return crypto.createHash("sha256").update(data).digest("hex");
-};
-
-export const verifyElectionVotes = async (req, res) => {
-    const { electionId } = req.params;
-
+export const verifyVotes = async (req, res) => {
     try {
+        const { electionId } = req.params;
+
+        // Get all votes for the election from database
         const votes = await Vote.find({ electionId });
 
-        const hashes = votes.map((vote) => hashVote(vote));
+        if (!votes.length) {
+            return res.status(404).json({ message: "No votes found for this election" });
+        }
 
-        const result = await voteCanister.verifyVotes(hashes);
-
-        res.status(200).json({
-            totalVotes: hashes.length,
-            validVotes: result.validCount,
-            corruptVotes: result.corruptCount,
+        // Generate hashes for each vote
+        const voteHashes = votes.map(vote => {
+            return hashVote({
+                voterId: vote.voterId.toString(),
+                candidateId: vote.candidateId.toString(),
+                electionId: vote.electionId.toString(),
+                halqa: vote.halqa,
+                voteTimestamp: vote.voteTimestamp
+            });
         });
+
+        // Verify votes on blockchain
+        const verificationResult = await voteActor.verifyVotes(voteHashes);
+
+        if (!verificationResult) {
+            return res.status(404).json({ message: "Failed to verify votes on blockchain" });
+        }
+
+        // Check if all votes are valid
+        const match = verificationResult.validCount === voteHashes.length;
+
+        res.json({
+            match,
+            validCount: Number(verificationResult.validCount),
+            corruptCount: Number(verificationResult.corruptCount),
+            totalVotes: votes.length,
+            details: votes.map((vote, index) => ({
+                voteId: vote._id,
+                voterId: vote.voterId,
+                hash: voteHashes[index],
+                verified: verificationResult.validCount > index
+            }))
+        });
+
     } catch (error) {
-        console.error("Error verifying votes:", error);
-        res.status(500).json({ message: "Failed to verify votes." });
+        console.error('Error verifying votes:', error);
+        res.status(500).json({ message: error.message });
     }
+};
+
+// Helper function to compare arrays of hashes
+const compareHashes = (dbHashes, blockchainHashes) => {
+    if (dbHashes.length !== blockchainHashes.length) {
+        return false;
+    }
+
+    // Sort both arrays to ensure consistent comparison
+    const sortedDbHashes = [...dbHashes].sort();
+    const sortedBlockchainHashes = [...blockchainHashes].sort();
+
+    // Compare each hash
+    for (let i = 0; i < sortedDbHashes.length; i++) {
+        if (sortedDbHashes[i] !== sortedBlockchainHashes[i]) {
+            return false;
+        }
+    }
+
+    return true;
 };

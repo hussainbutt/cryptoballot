@@ -59,7 +59,7 @@ const ResetPasswordScreen = () => {
 
     try {
       const response = await fetch(
-        `http://192.168.1.9:5000/api/auth/update/${cnic}`,
+        `http://192.168.18.82:5000/api/auth/update/${cnic}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -49,8 +49,8 @@ const UserProfile = () => {
                   data.message || "Could not delete account"
                 );
               }
-            } catch (err) {
-              Alert.alert("Error", err.message);
+            } catch (error: any) {
+              Alert.alert("Error", error.message);
             }
           },
         },
@@ -67,65 +67,103 @@ const UserProfile = () => {
   }
 
   return (
-    <ScrollView className="flex-1 bg-white px-6 pt-16">
-      <Text className="text-3xl font-bold text-blue-700 text-center mb-6">
-        My Profile
-      </Text>
-
-      <View className="bg-gray-100 rounded-xl p-6 mb-8">
-        <Text className="text-lg font-semibold text-gray-800 mb-2">
-          Name: <Text className="font-normal">{user.name}</Text>
+    <ScrollView className="flex-1 bg-white">
+      <View className="px-6 pt-16 pb-8">
+        <Text className="text-3xl font-bold text-blue-700 text-center mb-10">
+          My Profile
         </Text>
 
-        <Text className="text-lg font-semibold text-gray-800 mb-2">
-          CNIC: <Text className="font-normal">{user.cnic}</Text>
-        </Text>
+        <View className="bg-gray-100 rounded-xl p-8 mb-10 shadow-sm">
+          <View className="space-y-6">
+            <View className="flex-row items-center">
+              <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-4">
+                <Ionicons name="person-outline" size={24} color="#4B5563" />
+              </View>
+              <View>
+                <Text className="text-lg font-semibold text-gray-800">Name</Text>
+                <Text className="text-gray-600 mt-1">{user.name}</Text>
+              </View>
+            </View>
 
-        {user.email && (
-          <Text className="text-lg font-semibold text-gray-800 mb-2">
-            Email: <Text className="font-normal">{user.email}</Text>
-          </Text>
-        )}
+            <View className="flex-row items-center">
+              <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-4">
+                <Ionicons name="card-outline" size={24} color="#4B5563" />
+              </View>
+              <View>
+                <Text className="text-lg font-semibold text-gray-800">CNIC</Text>
+                <Text className="text-gray-600 mt-1">{user.cnic}</Text>
+              </View>
+            </View>
 
-        <Text className="text-lg font-semibold text-gray-800 mb-2">
-          National Halqa:{" "}
-          <Text className="font-normal">{user.nationalHalqa || "N/A"}</Text>
-        </Text>
+            {user.email && (
+              <View className="flex-row items-center">
+                <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-4">
+                  <Ionicons name="mail-outline" size={24} color="#4B5563" />
+                </View>
+                <View>
+                  <Text className="text-lg font-semibold text-gray-800">Email</Text>
+                  <Text className="text-gray-600 mt-1">{user.email}</Text>
+                </View>
+              </View>
+            )}
 
-        <Text className="text-lg font-semibold text-gray-800">
-          Provincial Halqa:{" "}
-          <Text className="font-normal">{user.provincialHalqa || "N/A"}</Text>
-        </Text>
-      </View>
+            <View className="flex-row items-center">
+              <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-4">
+                <Ionicons name="location-outline" size={24} color="#4B5563" />
+              </View>
+              <View>
+                <Text className="text-lg font-semibold text-gray-800">National Halqa</Text>
+                <Text className="text-gray-600 mt-1">{user.nationalHalqa || "N/A"}</Text>
+              </View>
+            </View>
 
-      <View className="space-y-4">
-        <TouchableOpacity
-          className="bg-blue-600 py-3 rounded-xl items-center"
-          onPress={() =>
-            Alert.alert("Coming Soon", "Edit profile coming soon!")
-          }
-        >
-          <Ionicons name="create-outline" size={20} color="white" />
-          <Text className="text-white font-semibold text-lg">Edit Profile</Text>
-        </TouchableOpacity>
+            <View className="flex-row items-center">
+              <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-4">
+                <Ionicons name="location-outline" size={24} color="#4B5563" />
+              </View>
+              <View>
+                <Text className="text-lg font-semibold text-gray-800">Provincial Halqa</Text>
+                <Text className="text-gray-600 mt-1">{user.provincialHalqa || "N/A"}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
 
-        <TouchableOpacity
-          className="bg-red-500 py-3 rounded-xl items-center"
-          onPress={handleLogout}
-        >
-          <Ionicons name="log-out-outline" size={20} color="white" />
-          <Text className="text-white font-semibold text-lg">Logout</Text>
-        </TouchableOpacity>
+        <View className="gap-y-3">
+          <TouchableOpacity
+            className="bg-blue-600 py-4 rounded-xl flex-row items-center justify-center space-x-2"
+            onPress={() => router.push("/(voter)/upcoming")}
+          >
+            <Ionicons name="calendar-outline" size={20} color="white" />
+            <Text className="text-white font-semibold text-lg">Upcoming Elections</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          className="bg-gray-800 py-3 rounded-xl items-center"
-          onPress={handleDeleteAccount}
-        >
-          <Ionicons name="trash-outline" size={20} color="white" />
-          <Text className="text-white font-semibold text-lg">
-            Delete Account
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            className="bg-blue-600 py-4 rounded-xl flex-row items-center justify-center space-x-2"
+            onPress={() => router.push("/(voter)/editProfile")}
+          >
+            <Ionicons name="create-outline" size={20} color="white" />
+            <Text className="text-white font-semibold text-lg">Edit Profile</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="bg-red-500 py-4 rounded-xl flex-row items-center justify-center space-x-2"
+            onPress={handleLogout}
+          >
+            <Ionicons name="log-out-outline" size={20} color="white" />
+            <Text className="text-white font-semibold text-lg">Logout</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="bg-gray-800 py-4 rounded-xl flex-row items-center justify-center space-x-2"
+            onPress={handleDeleteAccount}
+          >
+            <Ionicons name="trash-outline" size={20} color="white" />
+            <Text className="text-white font-semibold text-lg">
+              Delete Account
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );

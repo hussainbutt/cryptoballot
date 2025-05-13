@@ -1,9 +1,9 @@
 // routes/voteRoutes.js
 import express from "express";
-import { verifyElectionVotes } from "../controllers/voteController.js";
+import { verifyVotes } from '../controllers/blockchain.controller.js';
 
 const router = express.Router();
 
-router.get("/verify/:electionId", verifyElectionVotes);
+router.post('/verify/:electionId', verifyVotes);
 
 export default router;

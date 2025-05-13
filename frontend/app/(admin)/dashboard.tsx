@@ -55,6 +55,16 @@ const AdminDashboard = () => {
             </Text>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            onPress={() => router.push("/(admin)/verifyVotes")}
+            className="bg-yellow-500 py-10 rounded-2xl flex-row items-center justify-center"
+          >
+            <Ionicons name="shield-checkmark-outline" size={24} color="white" />
+            <Text className="text-white ml-4 text-lg font-medium">
+              Verify Votes
+            </Text>
+          </TouchableOpacity>
+
           {/* 📜 History / Previous Elections Button */}
           <TouchableOpacity
             onPress={() => router.push("/(admin)/history")}

@@ -45,6 +45,16 @@ const VoterHome = () => {
         </Pressable>
 
         <Pressable
+          onPress={() => router.push("/(voter)/upcoming")}
+          className="bg-yellow-600 py-10 rounded-2xl flex-row items-center justify-center shadow-md"
+        >
+          <Ionicons name="calendar-outline" size={22} color="white" />
+          <Text className="text-white text-lg ml-3 font-semibold">
+            Upcoming Elections
+          </Text>
+        </Pressable>
+
+        <Pressable
           onPress={() => router.push("/(voter)/history")}
           className="bg-indigo-600 py-10 rounded-2xl flex-row items-center justify-center shadow-md"
         >

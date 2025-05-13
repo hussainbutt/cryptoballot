@@ -9,6 +9,7 @@ import nadraRoutes from './routes/nadra.route.js';
 import electionRoutes from './routes/election.route.js';
 import candidateRoutes from './routes/candidate.route.js'
 import analyticsRoutes from './routes/analytics.route.js'
+import blockchainRoutes from './routes/blockchain.route.js'
 import "./cron/updateElectionStatus.js";
 
 
@@ -42,6 +43,7 @@ app.use("/api/candidates", candidateRoutes);
 app.use('/api/parties', partyRoutes);
 app.use('/api/elections', electionRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/blockchain', blockchainRoutes);
 
 
 // Server

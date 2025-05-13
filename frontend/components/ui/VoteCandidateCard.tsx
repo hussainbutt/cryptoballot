@@ -41,11 +41,11 @@ const CandidateCard: React.FC<CandidateCardProps> = ({
         onPress={onVote}
         disabled={voted}
         className={`py-2 px-4 rounded-lg ${
-          voted ? "bg-green-700" : "bg-green-600"
+          voted ? "bg-green-600" : "bg-green-600"
         }`}
       >
-        <Text className="text-brown text-center font-semibold">
-          {voted ? "Voted ✅" : "Vote 🗳️"}
+        <Text className="text-white text-center font-semibold">
+          {voted ? "Already Voted in this Election ✅" : "Vote 🗳️"}
         </Text>
       </TouchableOpacity>
     </View>

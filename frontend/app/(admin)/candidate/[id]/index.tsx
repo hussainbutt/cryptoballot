@@ -11,7 +11,7 @@ export default function CandidateDetailScreen() {
 
   const fetchCandidate = async () => {
     try {
-      const res = await fetch(`http://192.168.1.9:5000/api/candidates/${id}`);
+      const res = await fetch(`http://192.168.18.82:5000/api/candidates/${id}`);
       const data = await res.json();
       setCandidate(data);
     } catch (err) {
